@@ -10,8 +10,6 @@ exports.up = function(knex) {
                 .unique();
         table.string('password', 128)
             .notNullable();
-        table.string('confirmPassword', 128)
-            .notNullable();
   })
 };
 

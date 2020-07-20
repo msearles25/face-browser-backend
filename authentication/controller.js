@@ -4,8 +4,13 @@ const find = () => {
     return database('users').select('id', 'username', 'password');
 }
 
-const findById = id => {
+const getUserById = id => {
     return database('users').where({ id }).first();
+}
+const getUserByUsername = username => {
+    return database('users')
+        .where({ username })
+        .first();
 }
 
 const findBy = filter => {
@@ -15,12 +20,13 @@ const findBy = filter => {
 const newUser = async user => {
     const [id] = await database('users').returning('id').insert(user);
 
-    return findById(id)
+    return getUserById(id)
 } 
 
 module.exports = {
     newUser,
     find,
     findBy,
-    findById
+    getUserById,
+    getUserByUsername
 };
