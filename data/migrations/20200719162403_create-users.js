@@ -5,7 +5,12 @@ exports.up = function(knex) {
         table.string('username', 30)
             .notNullable()
             .unique();
+            table.string('email', 128)
+                .notNullable()
+                .unique();
         table.string('password', 128)
+            .notNullable();
+        table.string('confirmPassword', 128)
             .notNullable();
   })
 };

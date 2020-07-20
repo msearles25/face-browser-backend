@@ -6,4 +6,4 @@ const config = require('../knexfile');
 // select the development object
 const db = knex(config[env]);
 
-modules.export = db;
+module.exports = db;
