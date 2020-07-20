@@ -1,4 +1,4 @@
-const database = require('../data/dbConfig');
+const database = require('../config/dbConfig');
 
 const find = () => {
     return database('users').select('id', 'username', 'password');
@@ -12,14 +12,14 @@ const findBy = filter => {
     return database('users').where(filter).first();
 }
 
-const add = async user => {
+const newUser = async user => {
     const [id] = await database('users').returning('id').insert(user);
 
     return findById(id)
 } 
 
 module.exports = {
-    add,
+    newUser,
     find,
     findBy,
     findById

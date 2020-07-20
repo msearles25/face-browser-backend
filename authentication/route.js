@@ -25,7 +25,7 @@ router.post('/register', (req, res) => {
         return res.status(400).json({ error: 'Username required.' })
     }
     if(!newUser.email) {
-       return res.status(400).json({ error: 'Email address required.' })
+        return res.status(400).json({ error: 'Email address required.' })
     }
     if(!newUser.password) {
         return res.status(400).json({ error: 'Password required.' })
@@ -33,7 +33,7 @@ router.post('/register', (req, res) => {
     if(newUser.password !== newUser.confirmPassword) {
         return res.status(400).json({ error: 'Passwords do not match.' })
     }
-    Users.add(newUser)
+    Users.newUser(newUser)
         .then(newUser => {
             return res.status(201).json({ message: `User, ${newUser.username}, created sucessfully.`, newUser })
         })
@@ -48,29 +48,6 @@ router.post('/register', (req, res) => {
                     return res.status(500).json({ error: 'Error creating account, try again later.' })
             }
         })
-
-    // Users.findBy(newUser.username)
-    //     .then((username) => {
-    //         if(!username && !email) {
-    //             if(newUser.password !== newUser.confirmPassword) res.status(400).json('Passwords do not match')
-    //             Users.add(newUser)
-    //             .then(saved => {
-    //                 res.status(201).json(saved)
-    //             })
-
-    //         } else if(username) {
-    //             console.log(username, email)
-    //             res.status(400).json('username already exists, pick another one.')
-    //         } else {
-    //             res.status(400).json('Email already exists')
-    //         }
-    //     })
-    //     .catch(err => {
-    //         console.log(err);
-    //         res.status(500).json('Error creating user.');
-    //     })
-
-   
 })
 
 module.exports = router;
