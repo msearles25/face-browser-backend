@@ -26,7 +26,7 @@ const authenticate = (req, res, next) => {
             return next();
         })
     } else {
-        return res.json({ error: 'Please log in to continue.'})
+        return res.status(401).json({ error: 'Please log in to continue.'})
     }
 
 }

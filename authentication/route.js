@@ -3,7 +3,7 @@ const bcrypt = require('bcrypt');
 
 const Users = require('./controller');
 
-const { tokenGenerator, authenticate } = require('./util');
+const { tokenGenerator } = require('./util');
 
 router.get('/', (req, res) => {
     Users.find()
@@ -18,20 +18,20 @@ router.get('/', (req, res) => {
 
 router.post('/register', (req, res) => {
    const newUser = {
-        handle: req.body.handle,
+        userHandle: req.body.userHandle,
         email: req.body.email,
         password: req.body.password,
         confirmPassword: req.body.confirmPassword
     }
     
-    if(!newUser.handle) {
-        return res.status(400).json({ error: 'Handle required.' });
+    if(!newUser.userHandle) {
+        return res.status(400).json({ error: 'Handle is required.' });
     }
     if(!newUser.email) {
-        return res.status(400).json({ error: 'Email address required.' });
+        return res.status(400).json({ error: 'Email address is required.' });
     }
     if(!newUser.password) {
-        return res.status(400).json({ error: 'Password required.' });
+        return res.status(400).json({ error: 'Password is required.' });
     }
     if(!newUser.confirmPassword) {
         return res.status(400).json({ error: 'Please confirm your password.' });
@@ -59,60 +59,35 @@ router.post('/register', (req, res) => {
                 case 'users_email_unique':
                     return res.status(401).json({ error: 'Email already in use.' })
                 default:
-                    return res.status(500).json({ error: 'Server error, failed creating account, try again later.' })
+                    return res.status(500).json({ error: 'Server error, failed creating account. Try again later.' })
             }
         })
 })
 
 router.post('/login', (req, res) => {
-    const { handle, password } = req.body;
+    const { userHandle, password } = req.body;
 
-    if(!handle) {
+    if(!userHandle) {
         return res.status(400).json({ error: 'Handle is required.' })
     }
     if(!password) {
         return res.status(400).json({ error: 'Password is required.' })
     }
 
-    Users.getUserByHandle(handle)
+    Users.getUserByUserHandle(userHandle)
         .then(user => {
             if(user && bcrypt.compareSync(password, user.password)) {
                 const token = tokenGenerator(user);
                 delete user.password;
-                return res.status(200).json({ message: `Successfully logged ${handle} in.`, token, user});
+                return res.status(200).json({ message: `Successfully logged ${userHandle} in.`, token, user});
             } else {
-                console.log(handle)
                 return res.status(401).json({ error: 'Invalid credentials, try again.' });
             }
         })
         .catch(err => {
             console.log(err)
-            return res.status(500).json({ error: 'Server error, could not log user in, try again later.' });
+            return res.status(500).json({ error: 'Server error, could not log user in. Try again later.' });
         })
 })
-
-router.post('/posts/:userId', authenticate, (req, res) => {
-
-    const { userId } = req;
-    const { postContent } = req.body;
-    const newPost = {
-        postContent,
-        userId
-    }
-
-    if(req.userId.toString() === req.params.userId) {
-        Users.addPost(newPost).then(post => {
-            return res.status(201).json({ message: 'Successfully posted', post })
-        }) 
-        .catch(err => {
-            console.log(err)
-            return res.status(500).json({ message: 'Server error, failed to post, try again later.' })
-        })
-    } else {
-        res.status(401).json({ message: 'Unauthorized, get better scrub.' })
-    }
-
-})
-
 
 module.exports = router;

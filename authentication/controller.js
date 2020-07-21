@@ -1,13 +1,13 @@
 const database = require('../config/dbConfig');
 
-const find = () => {
+const getAllUsers = () => {
     return database('users').select('id', 'handle', 'password');
 }
 
 const getUserById = id => {
     return database('users').where({ id }).first();
 }
-const getUserByHandle = handle => {
+const getUserByUserHandle = handle => {
     return database('users')
         .where({ handle })
         .first();
@@ -23,22 +23,10 @@ const newUser = async user => {
     return getUserById(id)
 } 
 
-const getPostById = id => {
-    return database('posts').where({ id }).first();
-}
-
-const addPost = async post => {
-    const [id] = await database('posts').returning('id').insert(post);
-
-    return getPostById(id);
-}
-
 module.exports = {
     newUser,
-    find,
+    getAllUsers,
     getUserBy,
     getUserById,
-    getUserByHandle,
-    addPost,
-    getPostById
+    getUserByUserHandle,
 };
