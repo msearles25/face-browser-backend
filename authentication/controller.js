@@ -1,7 +1,7 @@
 const database = require('../config/dbConfig');
 
 const getAllUsers = () => {
-    return database('users').select('id', 'handle', 'password');
+    return database('users').select('id', 'userHandle');
 }
 
 const getUserById = id => {

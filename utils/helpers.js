@@ -1,3 +1,6 @@
+const Users = require('../authentication/controller');
+
+// helper functions
 const isEmpty = input => {
     if (!input) return true;
     return false;
@@ -30,6 +33,7 @@ const emailExists = async email => {
     return exists;
 }
 
+// validation functions for login and register
 const validateRegister = async data => {
     const errors = {}
 
@@ -38,8 +42,8 @@ const validateRegister = async data => {
         errors.userHandle = 'Handle must be at least 1 character.';
     } else if (!isValidHandle(data.userHandle)) {
         errors.userHandle = 'This handle is invalid. Characters must be: A-Z, a-z, 0-9, - or _';
-    } else if (await handleExists(userHandle)) {
-        errors.userHandle = `Sorry, ${userHandle} already exists. Please chose another handle.`
+    } else if (await handleExists(data.userHandle)) {
+        errors.userHandle = `Sorry, ${data.userHandle} already exists. Please chose another handle.`
     } else if (!isValidLength(data.userHandle, 20, 'lessOrEqual')) {
         errors.userHandle = 'Handle must be 20 characters or less.'
     }
@@ -61,13 +65,25 @@ const validateRegister = async data => {
     }
     if (data.password !== data.confirmPassword) errors.confirmPassword = 'Passwords must match.';
 
-    // if (Object.keys(errors).length > 0) {
-    //     return res.status(400).json({ message: { ...errors }})
-    // }
+    return {
+        errors,
+        isValid: Object.keys(errors).length > 0 ? false : true
+    }
+}
+
+const validateLogin = data => {
+    const errors = {}
+
+    if(isEmpty(data.userHandle)) {
+        errors.userHandle = 'Handle is required.';
+    }
+    if(isEmpty(data.password)) {
+        errors.password = 'Password is required.';
+    }
 
     return {
         errors,
-        isValid: Object.keys(errors).length > 0 ? true : false
+        isValid: Object.keys(errors).length > 0 ? false : true
     }
 }
 
@@ -78,5 +94,6 @@ module.exports = {
     handleExists,
     isValidEmail,
     emailExists,
-    validateRegister
+    validateRegister,
+    validateLogin
 }
