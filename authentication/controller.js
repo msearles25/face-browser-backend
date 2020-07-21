@@ -7,9 +7,9 @@ const getAllUsers = () => {
 const getUserById = id => {
     return database('users').where({ id }).first();
 }
-const getUserByUserHandle = handle => {
+const getUserByUserHandle = userHandle => {
     return database('users')
-        .where({ handle })
+        .where({ userHandle })
         .first();
 }
 

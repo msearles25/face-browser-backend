@@ -4,6 +4,7 @@ const bcrypt = require('bcrypt');
 const Users = require('./controller');
 
 const { tokenGenerator } = require('./util');
+const { validateRegister } = require('../utils/helpers');
 
 router.get('/', (req, res) => {
     Users.find()
@@ -18,71 +19,15 @@ router.get('/', (req, res) => {
 
 router.post('/register', async (req, res) => {
     const { userHandle, email, password, confirmPassword } = req.body;
-    const errors = {}
     
-    const isEmpty = input => {
-        if (!input) return true;
-        return false;
-    }
-    const isValidLength = (input, length, condition) => {
-        switch(condition) {
-            case 'greaterOrEqual':
-                return input.length >= length;
-            case 'lessOrEqual':
-            default:
-                return input.length <= length;
-        }
-    }
-    const isValidHandle = input => {
-        const regex = /^[a-zA-Z0-9-_]+$/;
-        if (input.match(regex)) return true;
-        return false;
-    }
-    const handleExists = userHandle => {
-        const exists = Users.getUserBy({ userHandle });
-        return exists;
-    }
-    const isValidEmail = input => {
-        const regex = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
-        if (input.match(regex)) return true;
-        return false
-    }
-    const emailExists = async email => {
-        const exists = await Users.getUserBy({ email });
-        return exists;
-    }
+    const { errors, isValid } = validateRegister({
+        userHandle,
+        email,
+        password,
+        confirmPassword
+    }) 
 
-    // validating the users handle
-    if (isEmpty(userHandle)) {
-        errors.userHandle = 'Handle must be at least 1 character.';
-    } else if (!isValidHandle(userHandle)) {
-        errors.userHandle = 'This handle is invalid. Characters must be: A-Z, a-z, 0-9, - or _';
-    } else if (await handleExists(userHandle)) {
-        errors.userHandle = `Sorry, ${userHandle} already exists. Please chose another handle.`
-    } else if (!isValidLength(userHandle, 20, 'lessOrEqual')) {
-        errors.userHandle = 'Handle must be 20 characters or less.'
-    }
-
-    // validating the users email
-    if (isEmpty(email)) {
-        errors.email = 'Email is required.';
-    } else if (!isValidEmail(email)) {
-        errors.email = 'Please enter a valid email.'
-    } else if (await emailExists(email)){
-        errors.email = 'That email is already in use.'
-    } 
-
-    // validating the users password
-    if (isEmpty(password)) {
-        errors.password = 'Password is required.'; 
-    } else if (!isValidLength(password, 6, 'greaterOrEqual') || !isValidLength(password, 14, 'lessOrEqual')) { 
-        errors.password = 'Password must be between 6 and 14 characters.'; 
-    }
-    if (password !== confirmPassword) errors.confirmPassword = 'Passwords must match.';
-
-    if (Object.keys(errors).length > 0) {
-        return res.status(401).json(errors)
-    }
+    if(!isValid) return res.status(400).json({ message: { ...errors } })
 
     try {
         const hashed = bcrypt.hashSync(password, 15);
@@ -94,41 +39,60 @@ router.post('/register', async (req, res) => {
         const token = tokenGenerator(user)
         delete user.password;
         return res.status(201).json({
-            message: 'Created',
+            message: `Welcome, ${userHandle}!`,
             token,
             user
         })
 
     } catch (error) {
         console.log(error)
-        return res.status(500).json({ message: 'The server fucked up.' });
+        return res.status(500).json({ message: 'The server doesn\'t want to work right now, come back later.' });
     }
 })
 
-router.post('/login', (req, res) => {
+router.post('/login', async (req, res) => {
     const { userHandle, password } = req.body;
 
     if(!userHandle) {
-        return res.status(400).json({ error: 'Handle is required.' })
+        return res.status(400).json({ message: 'Handle is required.' })
     }
     if(!password) {
-        return res.status(400).json({ error: 'Password is required.' })
+        return res.status(400).json({ message: 'Password is required.' })
     }
 
-    Users.getUserByUserHandle(userHandle)
-        .then(user => {
-            if(user && bcrypt.compareSync(password, user.password)) {
-                const token = tokenGenerator(user);
-                delete user.password;
-                return res.status(200).json({ message: `Successfully logged ${userHandle} in.`, token, user});
-            } else {
-                return res.status(401).json({ error: 'Invalid credentials, try again.' });
-            }
-        })
-        .catch(err => {
-            console.log(err)
-            return res.status(500).json({ error: 'Server error, could not log user in. Try again later.' });
-        })
+    try {
+        const user = await Users.getUserByUserHandle(userHandle);
+        if (user && bcrypt.compareSync(password, user.password)) {
+            const token = tokenGenerator(user);
+            delete user.password;
+            return res.status(200).json({ 
+                message: `Welcome, ${user.userHandle}!`,  
+                token,
+                user
+            })
+        } else {
+            return res.status(401).json({ message: 'Invalid credentials, try again.' });
+        }
+
+    } catch(err) {
+        console.log(err)
+        return res.status(500).json({ message: 'The server decided to have a fit, try again later.' })
+    }
+
+    // Users.getUserByUserHandle(userHandle)
+    //     .then(user => {
+    //         if(user && bcrypt.compareSync(password, user.password)) {
+    //             const token = tokenGenerator(user);
+    //             delete user.password;
+    //             return res.status(200).json({ message: `Successfully logged ${userHandle} in.`, token, user});
+    //         } else {
+    //             return res.status(401).json({ error: 'Invalid credentials, try again.' });
+    //         }
+    //     })
+    //     .catch(err => {
+    //         console.log(err)
+    //         return res.status(500).json({ error: 'Server error, could not log user in. Try again later.' });
+    //     })
 })
 
 module.exports = router;
