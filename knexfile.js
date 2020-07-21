@@ -5,13 +5,16 @@ module.exports = {
   development: {
     client: 'pg',
     connection: {
-      database: 'face-browser',
+      database: 'thefuckingdb',
       user: 'postgres',
       password: 'testingYo',
       host: '127.0.0.1'
     },
     migrations: {
       directory: './data/migrations'
+    },
+    seeds: {
+      directory: './data/seeds'
     }
   },
 
