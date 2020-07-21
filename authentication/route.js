@@ -4,6 +4,7 @@ const bcrypt = require('bcrypt');
 const Users = require('./controller');
 
 const { tokenGenerator } = require('./util');
+const { verify } = require('jsonwebtoken');
 
 router.get('/', (req, res) => {
     Users.find()
@@ -16,52 +17,128 @@ router.get('/', (req, res) => {
         })
 })
 
-router.post('/register', (req, res) => {
-   const newUser = {
-        userHandle: req.body.userHandle,
-        email: req.body.email,
-        password: req.body.password,
-        confirmPassword: req.body.confirmPassword
-    }
+router.post('/register', async (req, res) => {
+//    const newUser = {
+//         userHandle: req.body.userHandle,
+//         email: req.body.email,
+//         password: req.body.password,
+//         confirmPassword: req.body.confirmPassword
+//     }
     
-    if(!newUser.userHandle) {
-        return res.status(400).json({ error: 'Handle is required.' });
+    const { userHandle, email, password, confirmPassword } = req.body;
+
+    // if(!newUser.userHandle) {
+    //     return res.status(400).json({ error: 'Handle is required.' });
+    // }
+    // if(!newUser.email) {
+    //     return res.status(400).json({ error: 'Email address is required.' });
+    // }
+    // if(!newUser.password) {
+    //     return res.status(400).json({ error: 'Password is required.' });
+    // }
+    // if(!newUser.confirmPassword) {
+    //     return res.status(400).json({ error: 'Please confirm your password.' });
+    // }
+    // if(newUser.password !== newUser.confirmPassword) {
+    //     return res.status(400).json({ error: 'Passwords do not match.' });
+    // }
+
+    const errors = {}
+    
+    const isEmpty = input => {
+        if (!input) return true;
+        return false;
     }
-    if(!newUser.email) {
-        return res.status(400).json({ error: 'Email address is required.' });
+    const isValidHandle = input => {
+        const regex = /^[a-zA-Z0-9-_]+$/;
+        if (input.match(regex)) return true;
+        return false;
     }
-    if(!newUser.password) {
-        return res.status(400).json({ error: 'Password is required.' });
-    }
-    if(!newUser.confirmPassword) {
-        return res.status(400).json({ error: 'Please confirm your password.' });
-    }
-    if(newUser.password !== newUser.confirmPassword) {
-        return res.status(400).json({ error: 'Passwords do not match.' });
+    const isValidEmail = input => {
+        const regex = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+        if (input.match(regex)) return true;
+        return false
     }
 
-    newUser.password = bcrypt.hashSync(newUser.password, 10);
-    delete newUser.confirmPassword;
+    // if(!userHandle) {
+    //     return res.status(400).json({ error: 'Handle is required.' });
+    // }
+    // if(!email) {
+    //     return res.status(400).json({ error: 'Email address is required.' });
+    // }
+    // if(!password) {
+    //     return res.status(400).json({ error: 'Password is required.' });
+    // }
+    // if(!confirmPassword) {
+    //     return res.status(400).json({ error: 'Please confirm your password.' });
+    // }
+    // if(password !== confirmPassword) {
+    //     return res.status(400).json({ error: 'Passwords do not match.' });
+    // }
 
-    Users.newUser(newUser)
-        .then(newUser => {
-            const token = tokenGenerator(newUser)
-            delete newUser.password;
-            return res.status(201).json({ 
-                message: `Account, ${newUser.handle}, created sucessfully.` , token, newUser
-            })
+    if (isEmpty(userHandle)) {
+        errors.userHandle = 'Handle is required.';
+    } else if (!isValidHandle(userHandle)) {
+        errors.userHandle = 'This handle is invalid. Characters must be: A-Z, a-z, 0-9, - or _';
+    }
+    if (isEmpty(email)) {
+        errors.email = 'Email is required.';
+    } else if (!isValidEmail(email)) {
+        errors.email = 'Must be a valid email.'
+    }
+    if (isEmpty(password)) errors.password = 'Password is required.';
+    if (password !== confirmPassword) errors.confirmPassword = 'Passwords must match.';
+
+    if (Object.keys(errors).length > 0) {
+        return res.status(401).json(errors)
+    }
+
+    try {
+        const hashed = bcrypt.hashSync(password, 15);
+        const user = await Users.newUser({
+            userHandle,
+            email,
+            password: hashed
         })
-        .catch(err => {
-            const { constraint } = err;
-            switch(constraint){
-                case 'users_handle_unique':
-                    return res.status(401).json({ error: 'Handle name already exists.' })
-                case 'users_email_unique':
-                    return res.status(401).json({ error: 'Email already in use.' })
-                default:
-                    return res.status(500).json({ error: 'Server error, failed creating account. Try again later.' })
-            }
+        const token = tokenGenerator(user)
+        delete user.password;
+        return res.status(201).json({
+            message: 'Created',
+            token,
+            user
         })
+
+    } catch (error) {
+        console.log(error)
+        return res.status(500).json({ message: 'The server fucked up.' });
+    }
+
+
+    // const begin = Date.now();
+    // newUser.password = bcrypt.hashSync(newUser.password, 15);
+    // const end = Date.now();
+    // delete newUser.confirmPassword;
+
+    // Users.newUser(newUser)
+    //     .then(newUser => {
+    //         const token = tokenGenerator(newUser)
+    //         delete newUser.password;
+    //         return res.status(201).json({ 
+    //             message: `Account, ${newUser.handle}, created sucessfully.` , token, newUser, totalTimeToHash: `${(end - begin) / 1000} seconds to hash`
+    //         })
+    //     })
+    //     .catch(err => {
+    //         const { constraint } = err;
+    //         console.log(err)
+    //         switch(constraint){
+    //             case 'users_userhandle_unique':
+    //                 return res.status(401).json({ error: 'Handle name already exists.' })
+    //             case 'users_email_unique':
+    //                 return res.status(401).json({ error: 'Email already in use.' })
+    //             default:
+    //                 return res.status(500).json({ error: 'Server error, failed creating account. Try again later.' })
+    //         }
+    //     })
 })
 
 router.post('/login', (req, res) => {

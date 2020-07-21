@@ -21,12 +21,12 @@ const authenticate = (req, res, next) => {
 
     if(token) {
         jwt.verify(token, secret, (err, decodedToken) => {
-            if(err) return res.status(401).json({ error: 'Log in expired, please log in again.' });
+            if(err) return res.status(401).json({ message: 'Log in expired, please log in again.' });
             req.userId = decodedToken.subject;
             return next();
         })
     } else {
-        return res.status(401).json({ error: 'Please log in to continue.'})
+        return res.status(401).json({ message: 'Please log in to continue.'})
     }
 
 }
