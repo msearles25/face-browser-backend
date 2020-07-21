@@ -6,16 +6,32 @@ const tokenGenerator = user => {
     const payload = {
         subject: user.id,
         email: user.email,
-        username: user.username
+        handle: user.handle
     };
 
     const options = {
-        expiresIn: '7d'
+        expiresIn: '1d'
     };
 
     return jwt.sign(payload, secret, options)
 }
 
+const authenticate = (req, res, next) => {
+    const token = req.headers.authorization;
+
+    if(token) {
+        jwt.verify(token, secret, (err, decodedToken) => {
+            if(err) return res.status(401).json({ error: 'Log in expired, please log in again.' });
+            req.userId = decodedToken.subject;
+            return next();
+        })
+    } else {
+        return res.json({ error: 'Please log in to continue.'})
+    }
+
+}
+
 module.exports = {
-    tokenGenerator
+    tokenGenerator,
+    authenticate
 }

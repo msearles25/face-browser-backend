@@ -3,8 +3,7 @@ const bcrypt = require('bcrypt');
 
 const Users = require('./controller');
 
-const { tokenGenerator } = require('./util');
-const { Router } = require('express');
+const { tokenGenerator, authenticate } = require('./util');
 
 router.get('/', (req, res) => {
     Users.find()
@@ -19,14 +18,14 @@ router.get('/', (req, res) => {
 
 router.post('/register', (req, res) => {
    const newUser = {
-        username: req.body.username,
+        handle: req.body.handle,
         email: req.body.email,
         password: req.body.password,
         confirmPassword: req.body.confirmPassword
     }
     
-    if(!newUser.username) {
-        return res.status(400).json({ error: 'Username required.' });
+    if(!newUser.handle) {
+        return res.status(400).json({ error: 'Handle required.' });
     }
     if(!newUser.email) {
         return res.status(400).json({ error: 'Email address required.' });
@@ -49,41 +48,69 @@ router.post('/register', (req, res) => {
             const token = tokenGenerator(newUser)
             delete newUser.password;
             return res.status(201).json({ 
-                message: `Account, ${newUser.username}, created sucessfully.` , token, newUser
+                message: `Account, ${newUser.handle}, created sucessfully.` , token, newUser
             })
         })
         .catch(err => {
             const { constraint } = err;
             switch(constraint){
-                case 'users_username_unique':
-                    return res.status(401).json({ error: 'Username name already exists.' })
+                case 'users_handle_unique':
+                    return res.status(401).json({ error: 'Handle name already exists.' })
                 case 'users_email_unique':
                     return res.status(401).json({ error: 'Email already in use.' })
                 default:
-                    return res.status(500).json({ error: 'Error creating account, try again later.' })
+                    return res.status(500).json({ error: 'Server error, failed creating account, try again later.' })
             }
         })
 })
 
 router.post('/login', (req, res) => {
-    const { username, password } = req.body;
+    const { handle, password } = req.body;
 
-    Users.getUserByUsername(username)
+    if(!handle) {
+        return res.status(400).json({ error: 'Handle is required.' })
+    }
+    if(!password) {
+        return res.status(400).json({ error: 'Password is required.' })
+    }
+
+    Users.getUserByHandle(handle)
         .then(user => {
             if(user && bcrypt.compareSync(password, user.password)) {
                 const token = tokenGenerator(user);
                 delete user.password;
-                return res.status(200).json({ message: 'Successfully logged user in.', token, user});
+                return res.status(200).json({ message: `Successfully logged ${handle} in.`, token, user});
             } else {
+                console.log(handle)
                 return res.status(401).json({ error: 'Invalid credentials, try again.' });
             }
-
         })
         .catch(err => {
             console.log(err)
-            return res.status(500).json({ error: 'Server error, could not log user in.' });
+            return res.status(500).json({ error: 'Server error, could not log user in, try again later.' });
         })
+})
 
+router.post('/posts/:userId', authenticate, (req, res) => {
+
+    const { userId } = req;
+    const { postContent } = req.body;
+    const newPost = {
+        postContent,
+        userId
+    }
+
+    if(req.userId.toString() === req.params.userId) {
+        Users.addPost(newPost).then(post => {
+            return res.status(201).json({ message: 'Successfully posted', post })
+        }) 
+        .catch(err => {
+            console.log(err)
+            return res.status(500).json({ message: 'Server error, failed to post, try again later.' })
+        })
+    } else {
+        res.status(401).json({ message: 'Unauthorized, get better scrub.' })
+    }
 
 })
 

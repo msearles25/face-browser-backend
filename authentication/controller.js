@@ -1,19 +1,19 @@
 const database = require('../config/dbConfig');
 
 const find = () => {
-    return database('users').select('id', 'username', 'password');
+    return database('users').select('id', 'handle', 'password');
 }
 
 const getUserById = id => {
     return database('users').where({ id }).first();
 }
-const getUserByUsername = username => {
+const getUserByHandle = handle => {
     return database('users')
-        .where({ username })
+        .where({ handle })
         .first();
 }
 
-const findBy = filter => {
+const getUserBy = filter => {
     return database('users').where(filter).first();
 }
 
@@ -23,10 +23,22 @@ const newUser = async user => {
     return getUserById(id)
 } 
 
+const getPostById = id => {
+    return database('posts').where({ id }).first();
+}
+
+const addPost = async post => {
+    const [id] = await database('posts').returning('id').insert(post);
+
+    return getPostById(id);
+}
+
 module.exports = {
     newUser,
     find,
-    findBy,
+    getUserBy,
     getUserById,
-    getUserByUsername
+    getUserByHandle,
+    addPost,
+    getPostById
 };
