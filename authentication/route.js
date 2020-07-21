@@ -4,7 +4,6 @@ const bcrypt = require('bcrypt');
 const Users = require('./controller');
 
 const { tokenGenerator } = require('./util');
-const { verify } = require('jsonwebtoken');
 
 router.get('/', (req, res) => {
     Users.find()
@@ -18,75 +17,67 @@ router.get('/', (req, res) => {
 })
 
 router.post('/register', async (req, res) => {
-//    const newUser = {
-//         userHandle: req.body.userHandle,
-//         email: req.body.email,
-//         password: req.body.password,
-//         confirmPassword: req.body.confirmPassword
-//     }
-    
     const { userHandle, email, password, confirmPassword } = req.body;
-
-    // if(!newUser.userHandle) {
-    //     return res.status(400).json({ error: 'Handle is required.' });
-    // }
-    // if(!newUser.email) {
-    //     return res.status(400).json({ error: 'Email address is required.' });
-    // }
-    // if(!newUser.password) {
-    //     return res.status(400).json({ error: 'Password is required.' });
-    // }
-    // if(!newUser.confirmPassword) {
-    //     return res.status(400).json({ error: 'Please confirm your password.' });
-    // }
-    // if(newUser.password !== newUser.confirmPassword) {
-    //     return res.status(400).json({ error: 'Passwords do not match.' });
-    // }
-
     const errors = {}
     
     const isEmpty = input => {
         if (!input) return true;
         return false;
     }
+    const isValidLength = (input, length, condition) => {
+        switch(condition) {
+            case 'greaterOrEqual':
+                return input.length >= length;
+            case 'lessOrEqual':
+            default:
+                return input.length <= length;
+        }
+    }
     const isValidHandle = input => {
         const regex = /^[a-zA-Z0-9-_]+$/;
         if (input.match(regex)) return true;
         return false;
+    }
+    const handleExists = userHandle => {
+        const exists = Users.getUserBy({ userHandle });
+        return exists;
     }
     const isValidEmail = input => {
         const regex = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
         if (input.match(regex)) return true;
         return false
     }
+    const emailExists = async email => {
+        const exists = await Users.getUserBy({ email });
+        return exists;
+    }
 
-    // if(!userHandle) {
-    //     return res.status(400).json({ error: 'Handle is required.' });
-    // }
-    // if(!email) {
-    //     return res.status(400).json({ error: 'Email address is required.' });
-    // }
-    // if(!password) {
-    //     return res.status(400).json({ error: 'Password is required.' });
-    // }
-    // if(!confirmPassword) {
-    //     return res.status(400).json({ error: 'Please confirm your password.' });
-    // }
-    // if(password !== confirmPassword) {
-    //     return res.status(400).json({ error: 'Passwords do not match.' });
-    // }
-
+    // validating the users handle
     if (isEmpty(userHandle)) {
-        errors.userHandle = 'Handle is required.';
+        errors.userHandle = 'Handle must be at least 1 character.';
     } else if (!isValidHandle(userHandle)) {
         errors.userHandle = 'This handle is invalid. Characters must be: A-Z, a-z, 0-9, - or _';
+    } else if (await handleExists(userHandle)) {
+        errors.userHandle = `Sorry, ${userHandle} already exists. Please chose another handle.`
+    } else if (!isValidLength(userHandle, 20, 'lessOrEqual')) {
+        errors.userHandle = 'Handle must be 20 characters or less.'
     }
+
+    // validating the users email
     if (isEmpty(email)) {
         errors.email = 'Email is required.';
     } else if (!isValidEmail(email)) {
-        errors.email = 'Must be a valid email.'
+        errors.email = 'Please enter a valid email.'
+    } else if (await emailExists(email)){
+        errors.email = 'That email is already in use.'
+    } 
+
+    // validating the users password
+    if (isEmpty(password)) {
+        errors.password = 'Password is required.'; 
+    } else if (!isValidLength(password, 6, 'greaterOrEqual') || !isValidLength(password, 14, 'lessOrEqual')) { 
+        errors.password = 'Password must be between 6 and 14 characters.'; 
     }
-    if (isEmpty(password)) errors.password = 'Password is required.';
     if (password !== confirmPassword) errors.confirmPassword = 'Passwords must match.';
 
     if (Object.keys(errors).length > 0) {
@@ -112,33 +103,6 @@ router.post('/register', async (req, res) => {
         console.log(error)
         return res.status(500).json({ message: 'The server fucked up.' });
     }
-
-
-    // const begin = Date.now();
-    // newUser.password = bcrypt.hashSync(newUser.password, 15);
-    // const end = Date.now();
-    // delete newUser.confirmPassword;
-
-    // Users.newUser(newUser)
-    //     .then(newUser => {
-    //         const token = tokenGenerator(newUser)
-    //         delete newUser.password;
-    //         return res.status(201).json({ 
-    //             message: `Account, ${newUser.handle}, created sucessfully.` , token, newUser, totalTimeToHash: `${(end - begin) / 1000} seconds to hash`
-    //         })
-    //     })
-    //     .catch(err => {
-    //         const { constraint } = err;
-    //         console.log(err)
-    //         switch(constraint){
-    //             case 'users_userhandle_unique':
-    //                 return res.status(401).json({ error: 'Handle name already exists.' })
-    //             case 'users_email_unique':
-    //                 return res.status(401).json({ error: 'Email already in use.' })
-    //             default:
-    //                 return res.status(500).json({ error: 'Server error, failed creating account. Try again later.' })
-    //         }
-    //     })
 })
 
 router.post('/login', (req, res) => {
