@@ -2,28 +2,28 @@ const Users = require('../authentication/controller');
 const Posts = require('../posts/controller');
 
 // uuid generation
-const generateId = async typeOfId => {
-    const max32 = Math.pow(2, 32) - 1;
-    const max64 = Math.pow(2, 64) - 1;
-    let id;
-
+const checkIdType = typeOfId => {
     switch(typeOfId) {
         case 'user':
-            do {
-                id = Math.floor(Math.random() * max32);
-            } while(await Users.getUserById(id));
-            break;
-        
-            // this case will be used for both comments and posts
+            return typeOfId;
         case 'post':
-            do {
-                id = Math.floor(Math.random() * max64);
-            } while(await Posts.getPostById(id));
-            break;
+            return typeOfId;
         default:
             console.log('Not a valid type. Choose user or post.')
             return
     }
+}
+const generateId = async typeOfId => {
+    const max32 = Math.pow(2, 32) - 1;
+    const type = checkIdType(typeOfId);
+    let id;
+    const user = Users.getUserById;
+    const post = Posts.getPostById;
+    
+    do {
+        id = Math.floor(Math.random() * max32);
+    } while(type === 'user' ? await user(id) : await post(id));
+
     return id;
 }
 // const generateId = () => {
