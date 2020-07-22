@@ -36,18 +36,6 @@ router.post('/:userId', authenticate, async (req, res) => {
     } else {
         return res.status.json({ message: 'Unauthorized.' });
     }
-
-        // Posts.addPost(newPost)
-        //     .then(post => {
-        //         return res.status(201).json({ message: 'Successfully posted.', post });
-        //     }) 
-        //     .catch(err => {
-        //         console.log(err);
-        //         return res.status(500).json({ message: 'Server error, failed to post. Try again later.' })
-        //     })
-        // } else {
-        //     return res.status(401).json({ message: 'Unauthorized.' })
-        // }
 }) 
 
 module.exports = router;
