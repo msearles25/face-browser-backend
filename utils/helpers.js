@@ -17,16 +17,13 @@ const generateId = async typeOfId => {
             // this case will be used for both comments and posts
         case 'post':
             do {
-                id = Math.floor(Math.random() * max32);
-            } while(await Users.getPostById(id));
+                id = Math.floor(Math.random() * max64);
+            } while(await Posts.getPostById(id));
             break;
         default:
             console.log('Not a valid type. Choose user or post.')
             return
     }
-
-
-
     return id;
 }
 // const generateId = () => {
