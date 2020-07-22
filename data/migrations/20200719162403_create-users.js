@@ -10,7 +10,7 @@ exports.up = function(knex) {
         .unique();
       table.string('password')
         .notNullable();
-      table.dateTime('joinedOn')
+      table.timestamp('joinedOn')
         .notNullable()
         .defaultTo(knex.fn.now());
   })

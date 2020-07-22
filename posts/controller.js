@@ -5,8 +5,9 @@ const getAllPosts = () => {
         .join('users', 'posts.userId', 'users.id')
         .select(
             'posts.id as postId',
+            'userHandle',   
             'postContent',
-            'userHandle'    
+            'createdOn'
         )
 }
 
@@ -14,13 +15,14 @@ const getPostById = id => {
     return database('posts').where({ id }).first();
 }
 
-const getSpecificUsersPosts = async userHandle => {
-    return await database('posts')
+const getSpecificUsersPosts = userHandle => {
+    return database('posts')
         .join('users', 'posts.userId', 'users.id')
         .select(
             'posts.id as postId',
+            'userHandle',
             'postContent',
-            'userHandle'
+            'createdOn'
         )
         .where({ userHandle })
 }
