@@ -6,7 +6,8 @@ exports.seed = async function(knex) {
       // Inserts seed entries
     return knex('users').insert([
       {
-        id: await generateId('user'),
+        // id: await generateId('user'),
+        id: 4294967296,
         userHandle: 'fuck', 
         password: bcrypt.hashSync('fuck', 10), 
         email: 'fuckyou@email.com',},

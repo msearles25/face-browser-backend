@@ -7,7 +7,7 @@ const getAllPosts = () => {
             'posts.id as postId',
             'postContent',
             'userId',
-            'handle'    
+            'userHandle'    
         )
 }
 

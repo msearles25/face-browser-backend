@@ -1,11 +1,10 @@
 
 exports.up = function(knex) {
   return knex.schema.createTable('posts', table => {
-        table.integer('id').unsigned().primary();
+        table.bigInteger('id').primary();
         table.text('postContent')
             .notNullable();
-        table.integer('userId')
-            .unsigned()
+        table.bigInteger('userId')
             .notNullable()
             .unsigned()
             .references('id')

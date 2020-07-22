@@ -1,7 +1,7 @@
 
 exports.up = function(knex) {
   return knex.schema.createTable('users', table => {
-      table.integer('id').unsigned().primary();
+      table.bigInteger('id').primary();
       table.string('userHandle')
         .notNullable()
         .unique();

@@ -4,15 +4,14 @@ const { generateId } = require('../utils/helpers');
 
 const Posts = require('./controller')
 
-router.get('/', (req, res) => {
-    Posts.getAllPosts()
-        .then(posts => {
-            return res.status(200).json(posts)
-        })
-        .catch(err => {
-            console.log(err)
-            res.status(500).json({ meesage: 'Server error, failed to get posts.' })
-        })
+router.get('/', async (req, res) => {
+    try {
+        const posts = await Posts.getAllPosts();
+        return res.status(200).json(posts);
+    } catch(err) {
+        console.log(err)
+        res.status(500).json({ meesage: 'Server error, failed to get posts.' });
+    }
 })
 
 router.post('/:userId', authenticate, async (req, res) => {
@@ -25,18 +24,30 @@ router.post('/:userId', authenticate, async (req, res) => {
         userId
     }
 
-    if(req.userId.toString() === req.params.userId) {
-        Posts.addPost(newPost)
-            .then(post => {
-                return res.status(201).json({ message: 'Successfully posted.', post });
-            }) 
-            .catch(err => {
-                console.log(err);
-                return res.status(500).json({ message: 'Server error, failed to post. Try again later.' })
-            })
-        } else {
-            return res.status(401).json({ message: 'Unauthorized.' })
-        }
+    if(userId.toString() === req.params.userId) {
+
+        try {
+            const post = await Posts.addPost(newPost);
+            return res.status(201).json({ message: 'Successfully posted.', post });
+        } catch(err) {
+            console.log(err);
+            return res.status(500).json({ message: 'Server error, please try again later' });
+        }     
+    } else {
+        return res.status.json({ message: 'Unauthorized.' });
+    }
+
+        // Posts.addPost(newPost)
+        //     .then(post => {
+        //         return res.status(201).json({ message: 'Successfully posted.', post });
+        //     }) 
+        //     .catch(err => {
+        //         console.log(err);
+        //         return res.status(500).json({ message: 'Server error, failed to post. Try again later.' })
+        //     })
+        // } else {
+        //     return res.status(401).json({ message: 'Unauthorized.' })
+        // }
 }) 
 
 module.exports = router;
