@@ -1,5 +1,35 @@
 const Users = require('../authentication/controller');
 
+// uuid generation
+const generateId = () => {
+    const max32 = Math.pow(2, 32) - 1;
+    return Math.floor(Math.random() * max32);
+}
+// const generateId = () => {
+//     let uid = '';
+
+//     for(let i = 0; i < 20; i++) {
+//         const randomNumber = String.fromCharCode(Math.floor(Math.random() * 10) + 48);
+//         const randomLower = String.fromCharCode(Math.floor(Math.random() * 26) + 97);
+//         const randomUpper = String.fromCharCode(Math.floor(Math.random() * 26) + 65);
+
+//         const getRandom = Math.floor(Math.random() * 3) + 1;
+
+//         switch(getRandom) {
+//             case 1:
+//                 uid += randomNumber;
+//                 break;
+//             case 2:
+//                 uid += randomLower;
+//                 break;
+//             case 3:
+//                 uid += randomUpper;
+//                 break;
+//         }
+//     }
+//     return uid;
+// }
+
 // helper functions
 const isEmpty = input => {
     if (!input) return true;
@@ -88,6 +118,7 @@ const validateLogin = data => {
 }
 
 module.exports = {
+    generateId,
     isEmpty,
     isValidLength,
     isValidHandle,
