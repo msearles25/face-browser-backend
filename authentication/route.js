@@ -29,8 +29,9 @@ router.post('/register', async (req, res) => {
 
     try {
         const hashed = bcrypt.hashSync(password, 15);
+        const newId = await generateId('user');
         const user = await Users.newUser({
-            id: generateId(),
+            id: newId,
             userHandle,
             email,
             password: hashed
