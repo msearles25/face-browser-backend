@@ -15,8 +15,8 @@ const getPostById = id => {
     return database('posts').where({ id }).first();
 }
 
-const getPostByUserHandle = () => {
-    
+const getPostByUserHandle = userHandle => {
+    return database('posts').where({ userHandle })
 }
 
 const addPost = async post => {
@@ -26,8 +26,16 @@ const addPost = async post => {
     return getPostById(id); 
 }
 
+const deletePost = id => {
+    return database('posts')
+        .where({ id })
+        .del();
+}
+
 module.exports = {
     getAllPosts,
     getPostById,
-    addPost
+    getPostByUserHandle,
+    addPost,
+    deletePost
 }

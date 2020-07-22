@@ -36,6 +36,19 @@ router.post('/:userId', authenticate, async (req, res) => {
     } else {
         return res.status.json({ message: 'Unauthorized.' });
     }
-}) 
+})
+
+router.delete('/:postId', async (req, res) => {
+    const { postId } = req.params;
+    
+    try {
+        const deletedPost = await Posts.deletePost(postId);
+        console.log(deletedPost);
+        return res.status(200).json('deleted')
+    } catch {
+        return res.status(500).json('no')
+
+    }
+})
 
 module.exports = router;
