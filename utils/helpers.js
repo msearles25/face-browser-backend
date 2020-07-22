@@ -1,4 +1,55 @@
 const Users = require('../authentication/controller');
+const Posts = require('../posts/controller');
+
+// uuid generation
+const checkIdType = typeOfId => {
+    switch(typeOfId) {
+        case 'user':
+            return typeOfId;
+        case 'post':
+            return typeOfId;
+        default:
+            console.log('Not a valid type. Choose user or post.')
+            return
+    }
+}
+const generateId = async typeOfId => {
+    const max32 = Math.pow(2, 32) - 1;
+    const type = checkIdType(typeOfId);
+    let id;
+    const user = Users.getUserById;
+    const post = Posts.getPostById;
+    
+    do {
+        id = Math.floor(Math.random() * max32);
+    } while(type === 'user' ? await user(id) : await post(id));
+
+    return id;
+}
+// const generateId = () => {
+//     let uid = '';
+
+//     for(let i = 0; i < 20; i++) {
+//         const randomNumber = String.fromCharCode(Math.floor(Math.random() * 10) + 48);
+//         const randomLower = String.fromCharCode(Math.floor(Math.random() * 26) + 97);
+//         const randomUpper = String.fromCharCode(Math.floor(Math.random() * 26) + 65);
+
+//         const getRandom = Math.floor(Math.random() * 3) + 1;
+
+//         switch(getRandom) {
+//             case 1:
+//                 uid += randomNumber;
+//                 break;
+//             case 2:
+//                 uid += randomLower;
+//                 break;
+//             case 3:
+//                 uid += randomUpper;
+//                 break;
+//         }
+//     }
+//     return uid;
+// }
 
 // helper functions
 const isEmpty = input => {
@@ -88,6 +139,7 @@ const validateLogin = data => {
 }
 
 module.exports = {
+    generateId,
     isEmpty,
     isValidLength,
     isValidHandle,

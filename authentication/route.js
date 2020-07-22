@@ -4,10 +4,9 @@ const bcrypt = require('bcrypt');
 const Users = require('./controller');
 
 const { tokenGenerator } = require('./util');
-const { validateRegister, validateLogin } = require('../utils/helpers');
+const { validateRegister, validateLogin, generateId } = require('../utils/helpers');
 
 router.get('/', async (req, res) => {
-    
     try {
         users = await Users.getAllUsers();
         res.status(200).json(users)
@@ -30,7 +29,9 @@ router.post('/register', async (req, res) => {
 
     try {
         const hashed = bcrypt.hashSync(password, 15);
+        const newId = await generateId('user');
         const user = await Users.newUser({
+            id: newId,
             userHandle,
             email,
             password: hashed
