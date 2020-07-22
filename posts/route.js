@@ -14,6 +14,16 @@ router.get('/', async (req, res) => {
     }
 })
 
+router.get('/:userHandle', async (req, res) => {
+    const { userHandle } = req.params;
+    try {
+        const posts = await Posts.getSpecificUsersPosts (userHandle);
+        return res.status(200).json(posts);
+    } catch {
+        return res.status(500).json({ message: 'Error fetching posts from user.' })
+    }
+})
+
 router.post('/:userId', authenticate, async (req, res) => {
     const { userId } = req.user;
     const { postContent } = req.body;
@@ -42,7 +52,6 @@ router.delete('/:postId', async (req, res) => {
     
     try {
         const deletedPost = await Posts.deletePost(postId);
-        console.log(deletedPost);
         return res.status(200).json('deleted')
     } catch {
         return res.status(500).json('no')

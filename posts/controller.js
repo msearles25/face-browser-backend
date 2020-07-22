@@ -6,7 +6,6 @@ const getAllPosts = () => {
         .select(
             'posts.id as postId',
             'postContent',
-            'userId',
             'userHandle'    
         )
 }
@@ -15,8 +14,15 @@ const getPostById = id => {
     return database('posts').where({ id }).first();
 }
 
-const getPostByUserHandle = userHandle => {
-    return database('posts').where({ userHandle })
+const getSpecificUsersPosts = async userHandle => {
+    return await database('posts')
+        .join('users', 'posts.userId', 'users.id')
+        .select(
+            'posts.id as postId',
+            'postContent',
+            'userHandle'
+        )
+        .where({ userHandle })
 }
 
 const addPost = async post => {
@@ -35,7 +41,7 @@ const deletePost = id => {
 module.exports = {
     getAllPosts,
     getPostById,
-    getPostByUserHandle,
+    getSpecificUsersPosts,
     addPost,
     deletePost
 }
