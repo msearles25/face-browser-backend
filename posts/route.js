@@ -15,8 +15,8 @@ router.get('/', async (req, res) => {
 })
 
 router.post('/:userId', authenticate, async (req, res) => {
-    const { userId } = req;
-    const { postContent} = req.body;
+    const { userId } = req.user;
+    const { postContent } = req.body;
     const newId = await generateId('post');
     const newPost = {
         id: newId,
@@ -25,7 +25,6 @@ router.post('/:userId', authenticate, async (req, res) => {
     }
 
     if(userId.toString() === req.params.userId) {
-
         try {
             const post = await Posts.addPost(newPost);
             return res.status(201).json({ message: 'Successfully posted.', post });
