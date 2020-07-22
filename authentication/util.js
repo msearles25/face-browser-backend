@@ -4,9 +4,9 @@ const secret = process.env.JWT_SECRET || 'super-secret';
 
 const tokenGenerator = user => {
     const payload = {
-        subject: user.id,
-        email: user.email,
-        handle: user.handle
+        userId: user.id,
+        userHandle: user.userHandle,
+        email: user.email
     };
 
     const options = {
@@ -22,7 +22,7 @@ const authenticate = (req, res, next) => {
     if(token) {
         jwt.verify(token, secret, (err, decodedToken) => {
             if(err) return res.status(401).json({ message: 'Log in expired, please log in again.' });
-            req.userId = decodedToken.subject;
+            req.user = decodedToken;
             return next();
         })
     } else {
