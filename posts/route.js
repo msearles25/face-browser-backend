@@ -1,5 +1,6 @@
 const router = require('express').Router();
 const { authenticate } = require('../authentication/util');
+const { generateId } = require('../utils/helpers');
 
 const Posts = require('./controller')
 
@@ -14,10 +15,12 @@ router.get('/', (req, res) => {
         })
 })
 
-router.post('/:userId', authenticate, (req, res) => {
+router.post('/:userId', authenticate, async (req, res) => {
     const { userId } = req;
     const { postContent} = req.body;
+    const newId = await generateId('post');
     const newPost = {
+        id: newId,
         postContent,
         userId
     }

@@ -1,7 +1,7 @@
 
 exports.up = function(knex) {
   return knex.schema.createTable('posts', table => {
-        table.increments();
+        table.bigInteger('id').primary();
         table.text('postContent')
             .notNullable();
         table.integer('userId')
