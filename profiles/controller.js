@@ -1,7 +1,7 @@
 const database = require('../config/dbConfig');
 
 const getSpecificProfile = async userHandle => {
-    const profile = await database('users')
+    const user = await database('users')
         .select(
             'id',
             'userHandle',
@@ -13,10 +13,9 @@ const getSpecificProfile = async userHandle => {
         .where({ userHandle })
         .first();
     const posts = await database('posts')
-            .where({ userId: profile.id })
-
+            .where({ userId: user.id })
     return {
-        ...profile,
+        ...user,
         posts
     }
 }
