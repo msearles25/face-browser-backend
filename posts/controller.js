@@ -40,10 +40,25 @@ const deletePost = id => {
         .del();
 }
 
+// comment controllers
+const getCommentById = id => {
+    return database('comments')
+        .where({ id })
+        .first();
+}
+const addComment = async comment => {
+    const [id] = await database('comments')
+        .returning('id')
+        .insert(comment);
+    return getCommentById(id)
+}
+
 module.exports = {
     getAllPosts,
     getPostById,
     getSpecificUsersPosts,
     addPost,
-    deletePost
+    deletePost,
+    getCommentById,
+    addComment
 }

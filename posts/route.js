@@ -11,7 +11,7 @@ router.get('/', async (req, res) => {
         return res.status(200).json(posts);
     } catch(err) {
         console.log(err)
-        res.status(500).json({ meesage: 'Server error, failed to get posts.' });
+        res.status(500).json({ mesage: 'Server error, failed to get posts.' });
     }
 })
 
@@ -65,6 +65,25 @@ router.delete('/:postId', authenticate, async (req, res) => {
     } catch {
         return res.status(500).json({ message: 'The server says no, try again later.' });
     }
+})
+
+router.post('/:postId/comment/:userId', authenticate, async (req, res) => {
+    const { userId } = req.user;
+    const comment = {
+        id: await generateId('comment'),
+        body: req.body.body,
+        userId: userId,
+        postId: req.params.postId
+    }
+
+    if(userId.toString() === req.params.userId) {
+        const newComment = await Posts.addComment(comment);
+        return res.status(201).json(newComment)
+    } 
+    else {
+        return res.status(403).json({ message: 'Unauthorized.' })
+    }
+    
 })
 
 module.exports = router;
