@@ -7,6 +7,11 @@ const data = {
     },
 
     user: {
-        
+        id: 757107192,
+        userHandle: 'test',
+        joinedOn: '2020-07-22 23:50:55.666005+00',
+        bio: 'this is a bio lfjklsdjfklsjdlkf',
+        Location: 'Ohio',
+        site: 'https://www.website.com'
     }
 }
