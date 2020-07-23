@@ -21,8 +21,9 @@ router.get('/:postId', async (req, res) => {
     try {
         const post = await Posts.getPostById(postId);
         return res.status(200).json(post);
-    } catch {
-        return res.status(500).json({ message: 'Error fetching posts from user.' })
+    } catch(err) {
+        console.log(err)
+        return res.status(500).json({ message: 'Error fetching posts.' })
     }
 })
 
@@ -67,6 +68,9 @@ router.delete('/:postId', authenticate, async (req, res) => {
     }
 })
 
+// comment endpoints
+
+// allows the user to add a comment to a post
 router.post('/:postId/comment/:userId', authenticate, async (req, res) => {
     const { userId } = req.user;
     const comment = {
@@ -77,8 +81,13 @@ router.post('/:postId/comment/:userId', authenticate, async (req, res) => {
     }
 
     if(userId.toString() === req.params.userId) {
-        const newComment = await Posts.addComment(comment);
-        return res.status(201).json(newComment)
+        try {
+            const newComment = await Posts.addComment(comment);
+            return res.status(201).json(newComment)
+        }
+        catch {
+            return res.status(500).json({ message: 'Error posting comment, please try again later.' })
+        }
     } 
     else {
         return res.status(403).json({ message: 'Unauthorized.' })

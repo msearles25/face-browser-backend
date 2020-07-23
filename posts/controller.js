@@ -11,8 +11,33 @@ const getAllPosts = () => {
         )
 }
 
-const getPostById = id => {
-    return database('posts').where({ id }).first();
+const getPostById = async id => {
+    const post = await database('posts')
+        .join('users', 'posts.userId', 'users.id')
+        .select(
+            'posts.id',
+            'userHandle',
+            'postContent',
+            'createdOn'
+        )
+        .where({ 'posts.id': id })
+        .first();
+    const comments = await database('comments')
+        .join('posts', 'comments.postId', 'posts.id')
+        .join('users',  'comments.userId', 'users.id')
+        .select(
+            'comments.id',
+            'postId',
+            'body',
+            'userHandle',
+            'createOn'
+        )
+        .where({ postId: id })
+
+    return {
+        ...post,
+        comments
+    }
 }
 
 const getSpecificUsersPosts = userHandle => {
