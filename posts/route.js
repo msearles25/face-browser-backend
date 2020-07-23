@@ -4,6 +4,7 @@ const { generateId } = require('../utils/helpers');
 
 const Posts = require('./controller')
 
+// get all the posts
 router.get('/', async (req, res) => {
     try {
         const posts = await Posts.getAllPosts();
@@ -14,16 +15,18 @@ router.get('/', async (req, res) => {
     }
 })
 
-router.get('/:userHandle', async (req, res) => {
-    const { userHandle } = req.params;
+// get a specific post, so later when comments are added we can do more
+router.get('/:postId', async (req, res) => {
+    const { postId } = req.params;
     try {
-        const posts = await Posts.getSpecificUsersPosts(userHandle);
-        return res.status(200).json(posts);
+        const post = await Posts.getPostById(postId);
+        return res.status(200).json(post);
     } catch {
         return res.status(500).json({ message: 'Error fetching posts from user.' })
     }
 })
 
+// allows the authed user to post
 router.post('/:userId', authenticate, async (req, res) => {
     const { userId } = req.user;
     const { postContent } = req.body;
@@ -47,6 +50,7 @@ router.post('/:userId', authenticate, async (req, res) => {
     }
 })
 
+// allows the authed user to delete a certain post
 router.delete('/:postId', authenticate, async (req, res) => {
     const { postId } = req.params;
     const { userId } = req.user;
