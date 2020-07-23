@@ -5,9 +5,9 @@ const getAllPosts = () => {
         .join('users', 'posts.userId', 'users.id')
         .select(
             'posts.id as postId',
+            'userHandle',   
             'postContent',
-            'userId',
-            'userHandle'    
+            'createdOn'
         )
 }
 
@@ -15,8 +15,16 @@ const getPostById = id => {
     return database('posts').where({ id }).first();
 }
 
-const getPostByUserHandle = () => {
-    
+const getSpecificUsersPosts = userHandle => {
+    return database('posts')
+        .join('users', 'posts.userId', 'users.id')
+        .select(
+            'posts.id as postId',
+            'userHandle',
+            'postContent',
+            'createdOn'
+        )
+        .where({ userHandle })
 }
 
 const addPost = async post => {
@@ -26,8 +34,16 @@ const addPost = async post => {
     return getPostById(id); 
 }
 
+const deletePost = id => {
+    return database('posts')
+        .where({ id })
+        .del();
+}
+
 module.exports = {
     getAllPosts,
     getPostById,
-    addPost
+    getSpecificUsersPosts,
+    addPost,
+    deletePost
 }
