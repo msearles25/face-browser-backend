@@ -23,6 +23,15 @@ const getSpecificProfile = async userHandle => {
 const getProfileInfo = id => {
     return database('users')
         .where({ id })
+        .select(
+            'id',
+            'userHandle',
+            'email',
+            'joinedOn',
+            'bio',
+            'location',
+            'site'
+        )
         .first();
 }
 
