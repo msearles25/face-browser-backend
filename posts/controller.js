@@ -9,6 +9,7 @@ const getAllPosts = () => {
             'postContent',
             'createdOn'
         )
+        .orderBy('createdOn', 'desc');
 }
 
 const getPostById = async id => {
@@ -30,8 +31,9 @@ const getPostById = async id => {
             'postId',
             'body',
             'userHandle',
-            'createOn'
+            'comments.createdOn'
         )
+        .orderBy('createdOn', 'desc')
         .where({ postId: id })
 
     return {

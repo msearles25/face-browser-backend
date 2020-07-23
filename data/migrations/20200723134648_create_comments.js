@@ -19,7 +19,7 @@ exports.up = function(knex) {
             .onUpdate('CASCADE')
             .onDelete('CASCADE')
             .notNullable();
-        table.timestamp('createOn')
+        table.timestamp('createdOn')
             .defaultTo(knex.fn.now())
             .notNullable();
     })
