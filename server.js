@@ -2,7 +2,8 @@ const express = require('express');
 const helmet = require('helmet');
 const cors = require('cors');
 
-const usersRouter = require('./authentication/route');
+const authRouter = require('./authentication/route');
+const usersRouter = require('./profiles/route'); 
 const postsRouter = require('./posts/route');
 
 const server = express();
@@ -15,7 +16,8 @@ server.get('/', (req, res) => {
     res.send('What the hell am I even doing?')
 })
 
-server.use('/users', usersRouter);
-server.use('/post', postsRouter);
+server.use('/api/auth', authRouter);
+server.use('/api/user', usersRouter);
+server.use('/api/post', postsRouter);
 
 module.exports = server;

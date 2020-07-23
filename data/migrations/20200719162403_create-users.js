@@ -13,6 +13,9 @@ exports.up = function(knex) {
       table.timestamp('joinedOn')
         .notNullable()
         .defaultTo(knex.fn.now());
+      table.string('bio');
+      table.string('location');
+      table.string('site');
   })
 };
 

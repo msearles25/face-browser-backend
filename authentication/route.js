@@ -39,9 +39,10 @@ router.post('/register', async (req, res) => {
         const token = tokenGenerator(user)
         delete user.password;
         return res.status(201).json({
-            message: `Welcome, ${userHandle}!`,
-            token,
-            user
+            id: user.id,
+            userHandle: user.userHandle,
+            message: `Registered, ${userHandle}!`,
+            token
         })
 
     } catch (error) {
@@ -68,9 +69,10 @@ router.post('/login', async (req, res) => {
             const token = tokenGenerator(user);
             delete user.password;
             return res.status(200).json({ 
+                id: user.id,
+                userHandle: user.userHandle,
                 message: `Welcome, ${user.userHandle}!`,  
                 token,
-                user
             })
         } else {
             return res.status(401).json({ message: 'Invalid credentials, try again.' });

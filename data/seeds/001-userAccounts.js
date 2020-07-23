@@ -7,9 +7,9 @@ exports.seed = async function(knex) {
     return knex('users').insert([
       {
         // id: await generateId('user'),
-        id: 4294967295,
-        userHandle: 'fuck', 
-        password: bcrypt.hashSync('fuck', 10), 
-        email: 'fuckyou@email.com',},
+        id: generateId('user'),
+        userHandle: 'test', 
+        password: bcrypt.hashSync('test', 10), 
+        email: 'test@email.com',},
     ]);
 };
