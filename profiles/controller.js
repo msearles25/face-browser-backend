@@ -20,6 +20,21 @@ const getSpecificProfile = async userHandle => {
     }
 }
 
+const getProfileInfo = id => {
+    return database('users')
+        .where({ id })
+        .first();
+}
+
+const updateProfile = async (updatedInfo, id) => {
+    await database('users')
+        .update(updatedInfo)
+        .where({ id })
+    return getProfileInfo(id)
+}
+
 module.exports = {
-    getSpecificProfile
+    getSpecificProfile,
+    getProfileInfo,
+    updateProfile
 }

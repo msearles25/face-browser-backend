@@ -4,12 +4,12 @@ const Profile = require('./controller');
 const User = require('../authentication/controller');
 
 const { authenticate } = require('../authentication/util');
+const { update } = require('../config/dbConfig');
 
 // getting authed users credentials
 router.get('/', authenticate, async (req, res) => {
-    const id = req.user.userId;
-    
     try {
+        const id = req.user.userId;
         const userInfo = await User.getUserById(id);
         delete userInfo.password; // so we don't return the password with everything else
         return res.status(200).json(userInfo);
@@ -33,5 +33,20 @@ router.get('/:userHandle', async (req, res) => {
         return res.status(500).json({ message: 'Error retrieving users profile, try again later.' })
     }
 }) 
+
+// update the currently authed users profile
+// allows you to add the bio, location or website
+router.put('/', authenticate, async (req, res) => {
+    try{
+        const id = req.user.userId;
+        const updatedInfo = req.body;
+        const updated = await Profile.updateProfile(updatedInfo, id)
+        return res.status(200).json(updated);
+    }
+    catch(err){
+        console.log(err)
+        return res.status(500).json({ message: 'Error updating informaiton, try again later.' })
+    }
+})
 
 module.exports = router;
