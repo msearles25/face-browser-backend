@@ -1,16 +1,20 @@
 
 exports.up = function(knex) {
   return knex.schema.createTable('posts', table => {
-        table.increments();
+        table.bigInteger('id')
+            .primary();
         table.text('postContent')
             .notNullable();
-        table.integer('userId')
+        table.bigInteger('userId')
             .notNullable()
             .unsigned()
             .references('id')
             .inTable('users')
             .onUpdate('CASCADE')
             .onDelete('CASCADE');
+        table.timestamp('createdOn')
+            .defaultTo(knex.fn.now())
+            .notNullable();
   })
 };
 

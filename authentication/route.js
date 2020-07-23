@@ -4,90 +4,82 @@ const bcrypt = require('bcrypt');
 const Users = require('./controller');
 
 const { tokenGenerator } = require('./util');
+const { validateRegister, validateLogin, generateId } = require('../utils/helpers');
 
-router.get('/', (req, res) => {
-    Users.find()
-        .then(users => {
-            res.status(200).json(users);
-        })
-        .catch(err => {
-            console.log(err);
-            res.status(500).json('Error getting users.')
-        })
+router.get('/', async (req, res) => {
+    try {
+        users = await Users.getAllUsers();
+        res.status(200).json(users)
+    } catch(err) {
+        console.log(err)
+        res.status(500).json({ message: 'The server said no, so come back later.' });
+    }
 })
 
-router.post('/register', (req, res) => {
-   const newUser = {
-        userHandle: req.body.userHandle,
-        email: req.body.email,
-        password: req.body.password,
-        confirmPassword: req.body.confirmPassword
-    }
-    
-    if(!newUser.userHandle) {
-        return res.status(400).json({ error: 'Handle is required.' });
-    }
-    if(!newUser.email) {
-        return res.status(400).json({ error: 'Email address is required.' });
-    }
-    if(!newUser.password) {
-        return res.status(400).json({ error: 'Password is required.' });
-    }
-    if(!newUser.confirmPassword) {
-        return res.status(400).json({ error: 'Please confirm your password.' });
-    }
-    if(newUser.password !== newUser.confirmPassword) {
-        return res.status(400).json({ error: 'Passwords do not match.' });
-    }
+router.post('/register', async (req, res) => {
+    const { userHandle, email, password, confirmPassword } = req.body;
+    const { errors, isValid } = await validateRegister({
+        userHandle,
+        email,
+        password,
+        confirmPassword
+    });
 
-    newUser.password = bcrypt.hashSync(newUser.password, 10);
-    delete newUser.confirmPassword;
+    if(!isValid) return res.status(400).json({ message: { ...errors }}) 
 
-    Users.newUser(newUser)
-        .then(newUser => {
-            const token = tokenGenerator(newUser)
-            delete newUser.password;
-            return res.status(201).json({ 
-                message: `Account, ${newUser.handle}, created sucessfully.` , token, newUser
-            })
+    try {
+        const hashed = bcrypt.hashSync(password, 15);
+        const newId = await generateId('user');
+        const user = await Users.newUser({
+            id: newId,
+            userHandle,
+            email,
+            password: hashed
         })
-        .catch(err => {
-            const { constraint } = err;
-            switch(constraint){
-                case 'users_handle_unique':
-                    return res.status(401).json({ error: 'Handle name already exists.' })
-                case 'users_email_unique':
-                    return res.status(401).json({ error: 'Email already in use.' })
-                default:
-                    return res.status(500).json({ error: 'Server error, failed creating account. Try again later.' })
-            }
+        const token = tokenGenerator(user)
+        delete user.password;
+        return res.status(201).json({
+            message: `Welcome, ${userHandle}!`,
+            token,
+            user
         })
+
+    } catch (error) {
+        console.log(error)
+        return res.status(500).json({ message: 'The server doesn\'t want to work right now, come back later.' });
+    }
 })
 
-router.post('/login', (req, res) => {
+router.post('/login', async (req, res) => {
     const { userHandle, password } = req.body;
 
-    if(!userHandle) {
-        return res.status(400).json({ error: 'Handle is required.' })
-    }
-    if(!password) {
-        return res.status(400).json({ error: 'Password is required.' })
+    const { errors, isValid } = validateLogin({
+        userHandle,
+        password
+    });
+
+    if(!isValid) {
+        return res.status(400).json({ message: { ...errors }})
     }
 
-    Users.getUserByUserHandle(userHandle)
-        .then(user => {
-            if(user && bcrypt.compareSync(password, user.password)) {
-                const token = tokenGenerator(user);
-                delete user.password;
-                return res.status(200).json({ message: `Successfully logged ${userHandle} in.`, token, user});
-            } else {
-                return res.status(401).json({ error: 'Invalid credentials, try again.' });
-            }
-        })
-        .catch(err => {
-            console.log(err)
-            return res.status(500).json({ error: 'Server error, could not log user in. Try again later.' });
-        })
+    try {
+        const user = await Users.getUserByUserHandle(userHandle);
+        if (user && bcrypt.compareSync(password, user.password)) {
+            const token = tokenGenerator(user);
+            delete user.password;
+            return res.status(200).json({ 
+                message: `Welcome, ${user.userHandle}!`,  
+                token,
+                user
+            })
+        } else {
+            return res.status(401).json({ message: 'Invalid credentials, try again.' });
+        }
+
+    } catch(err) {
+        console.log(err)
+        return res.status(500).json({ message: 'The server decided to have a fit, try again later.' })
+    }
 })
 
 module.exports = router;

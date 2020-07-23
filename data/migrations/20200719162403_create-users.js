@@ -1,16 +1,16 @@
 
 exports.up = function(knex) {
   return knex.schema.createTable('users', table => {
-      table.increments();
-      table.string('userHandle', 30)
+      table.bigInteger('id').primary();
+      table.string('userHandle')
         .notNullable()
         .unique();
-      table.string('email', 128)
+      table.string('email')
         .notNullable()
         .unique();
-      table.string('password', 128)
+      table.string('password')
         .notNullable();
-      table.dateTime('joinedOn')
+      table.timestamp('joinedOn')
         .notNullable()
         .defaultTo(knex.fn.now());
   })

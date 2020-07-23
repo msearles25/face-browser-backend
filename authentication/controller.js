@@ -1,15 +1,15 @@
 const database = require('../config/dbConfig');
 
 const getAllUsers = () => {
-    return database('users').select('id', 'handle', 'password');
+    return database('users').select('id', 'userHandle');
 }
 
 const getUserById = id => {
     return database('users').where({ id }).first();
 }
-const getUserByUserHandle = handle => {
+const getUserByUserHandle = userHandle => {
     return database('users')
-        .where({ handle })
+        .where({ userHandle })
         .first();
 }
 
