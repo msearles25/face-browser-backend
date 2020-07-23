@@ -38,6 +38,8 @@ router.post('/:userId', authenticate, async (req, res) => {
         userId
     }
 
+    if(!postContent) return res.status(400).json({ message: 'The body of the post is needed.' })
+
     if(userId.toString() === req.params.userId) {
         try {
             const post = await Posts.addPost(newPost);
@@ -79,6 +81,7 @@ router.post('/:postId/comment/:userId', authenticate, async (req, res) => {
         userId: userId,
         postId: req.params.postId
     }
+    if(!comment.body) return res.status(400).json({ message: 'The body of the comment is needed.' })
 
     if(userId.toString() === req.params.userId) {
         try {
