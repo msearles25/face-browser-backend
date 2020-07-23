@@ -10,7 +10,6 @@ router.get('/', authenticate, async (req, res) => {
     try {
         const id = req.user.userId;
         const userInfo = await Profile.getProfileInfo(id);
-        delete userInfo.password; // so we don't return the password with everything else
         return res.status(200).json(userInfo);
     }
     catch {
