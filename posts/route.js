@@ -17,7 +17,7 @@ router.get('/', async (req, res) => {
 router.get('/:userHandle', async (req, res) => {
     const { userHandle } = req.params;
     try {
-        const posts = await Posts.getSpecificUsersPosts (userHandle);
+        const posts = await Posts.getSpecificUsersPosts(userHandle);
         return res.status(200).json(posts);
     } catch {
         return res.status(500).json({ message: 'Error fetching posts from user.' })
