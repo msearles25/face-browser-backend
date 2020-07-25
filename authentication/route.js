@@ -17,7 +17,7 @@ router.get('/', async (req, res) => {
 })
 
 router.post('/register', async (req, res) => {
-    const { userHandle, email, password, confirmPassword } = req.body;
+    const { userHandle, email, password, confirmPassword, imageUrl } = req.body;
     const { errors, isValid } = await validateRegister({
         userHandle,
         email,
@@ -34,6 +34,7 @@ router.post('/register', async (req, res) => {
             id: newId,
             userHandle,
             email,
+            imageUrl,
             password: hashed
         })
         const token = tokenGenerator(user)
