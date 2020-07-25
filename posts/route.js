@@ -32,6 +32,7 @@ router.post('/:userId', authenticate, async (req, res) => {
     const { userId } = req.user;
     const { postContent } = req.body;
     const newId = await generateId('post');
+    // const newId = 1;
     const newPost = {
         id: newId,
         postContent,

@@ -23,23 +23,27 @@ const getPostById = async id => {
         )
         .where({ 'posts.id': id })
         .first();
-    const comments = await database('comments')
-        .join('posts', 'comments.postId', 'posts.id')
-        .join('users',  'comments.userId', 'users.id')
-        .select(
-            'comments.id',
-            'postId',
-            'body',
-            'userHandle',
-            'comments.createdOn'
-        )
-        .orderBy('createdOn', 'desc')
-        .where({ postId: id })
-
-    return {
-        ...post,
-        comments
+    if(post) {
+        const comments = await database('comments')
+            .join('posts', 'comments.postId', 'posts.id')
+            .join('users',  'comments.userId', 'users.id')
+            .select(
+                'comments.id',
+                'postId',
+                'body',
+                'userHandle',
+                'comments.createdOn'
+            )
+            .orderBy('createdOn', 'desc')
+            .where({ postId: id })
+            
+            return {
+                ...post,
+                comments
+            }
     }
+    return post;
+
 }
 
 const getSpecificUsersPosts = userHandle => {
