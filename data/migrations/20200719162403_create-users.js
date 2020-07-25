@@ -10,6 +10,7 @@ exports.up = function(knex) {
         .unique();
       table.string('password')
         .notNullable();
+      table.string('imageUrl', 1000);
       table.timestamp('joinedOn')
         .notNullable()
         .defaultTo(knex.fn.now());
