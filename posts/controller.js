@@ -5,7 +5,8 @@ const getAllPosts = () => {
         .join('users', 'posts.userId', 'users.id')
         .select(
             'posts.id as postId',
-            'userHandle',   
+            'userHandle',
+            'imageUrl',   
             'postContent',
             'createdOn'
         )
@@ -18,6 +19,7 @@ const getPostById = async id => {
         .select(
             'posts.id',
             'userHandle',
+            'imageUrl',
             'postContent',
             'createdOn'
         )
@@ -52,6 +54,7 @@ const getSpecificUsersPosts = userHandle => {
         .select(
             'posts.id as postId',
             'userHandle',
+            'imageUrl',
             'postContent',
             'createdOn'
         )
