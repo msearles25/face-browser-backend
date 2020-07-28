@@ -8,6 +8,7 @@ const getSpecificProfile = async userHandle => {
             'bio',
             'location',
             'site',
+            'imageUrl',
             'joinedOn'
         )
         .where({ userHandle })
@@ -30,7 +31,8 @@ const getProfileInfo = id => {
             'joinedOn',
             'bio',
             'location',
-            'site'
+            'site',
+            'imageUrl'
         )
         .first();
 }

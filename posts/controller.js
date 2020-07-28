@@ -34,6 +34,7 @@ const getPostById = async id => {
                 'postId',
                 'body',
                 'userHandle',
+                'imageUrl',
                 'comments.createdOn'
             )
             .orderBy('createdOn', 'desc')

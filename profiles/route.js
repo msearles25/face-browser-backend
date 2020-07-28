@@ -34,11 +34,12 @@ router.get('/:userHandle', async (req, res) => {
 
 // update the currently authed users profile
 // allows you to add the bio, location or website
-router.put('/:userId', authenticate, async (req, res) => {
-    const id = req.params.userId;
+router.put('/', authenticate, async (req, res) => {
+    const id = req.user.userId;
     const updatedInfo = req.body;
     const user = await User.getUserById(id);
     if(!user) return res.status(404).json({ error: 'Error, user does not exist.'})
+    console.log(req.user)
     try{
         const updated = await Profile.updateProfile(updatedInfo, id)
         return res.status(200).json(updated);
