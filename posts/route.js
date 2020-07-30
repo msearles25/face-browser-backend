@@ -28,7 +28,7 @@ router.get('/:postId', async (req, res) => {
 })
 
 // allows the authed user to post
-router.post('/:userId', authenticate, async (req, res) => {
+router.post('/', authenticate, async (req, res) => {
     const { userId } = req.user;
     const { postContent } = req.body;
     const newId = await generateId('post');
@@ -41,7 +41,7 @@ router.post('/:userId', authenticate, async (req, res) => {
 
     if(!postContent) return res.status(400).json({ message: 'The body of the post is needed.' })
 
-    if(userId.toString() === req.params.userId) {
+    // if(userId.toString() === req.params.userId) {
         try {
             const post = await Posts.addPost(newPost);
             return res.status(201).json({ message: 'Successfully posted.', post });
@@ -49,9 +49,9 @@ router.post('/:userId', authenticate, async (req, res) => {
             console.log(err);
             return res.status(500).json({ message: 'Server error, please try again later' });
         }     
-    } else {
-        return res.status(403).json({ message: 'Unauthorized.' });
-    }
+    // } else {
+    //     return res.status(403).json({ message: 'Unauthorized.' });
+    // }
 })
 
 // allows the authed user to delete a certain post
