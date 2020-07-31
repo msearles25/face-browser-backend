@@ -19,6 +19,7 @@ const getPostById = async id => {
         .select(
             'posts.id',
             'userHandle',
+            'users.id as userId',
             'imageUrl',
             'postContent',
             'createdOn'

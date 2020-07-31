@@ -59,6 +59,7 @@ router.delete('/:postId', authenticate, async (req, res) => {
     const { postId } = req.params;
     const { userId } = req.user;
     const postInfo = await Posts.getPostById(postId);
+    console.log(postInfo)
 
     if(!postInfo) return res.status(404).json({ message: 'Post not found.' })
     if(userId !== postInfo.userId) return res.status(403).json({ message: 'Unauthorized.' })
