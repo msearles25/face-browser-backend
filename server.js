@@ -1,6 +1,6 @@
 const express = require('express');
 const helmet = require('helmet');
-const cors = require('cors');
+// const cors = require('cors');
 
 const authRouter = require('./authentication/route');
 const userRouter = require('./profiles/route'); 
@@ -10,7 +10,7 @@ const server = express();
 
 server.use(helmet())
 server.use(express.json());
-server.use(cors());
+// server.use(cors());
 
 server.get('/', (req, res) => {
     res.send('What the hell am I even doing?')
