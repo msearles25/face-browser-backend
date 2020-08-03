@@ -61,6 +61,7 @@ const getSpecificUsersPosts = userHandle => {
             'createdOn'
         )
         .where({ userHandle })
+        .orderBy('createdOn', 'desc');
 }
 
 const addPost = async post => {
