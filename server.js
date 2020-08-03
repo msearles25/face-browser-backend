@@ -8,9 +8,9 @@ const postsRouter = require('./posts/route');
 
 const server = express();
 
-server.use(helmet())
-server.use(express.json());
 server.use(cors());
+server.use(helmet());
+server.use(express.json());
 
 server.get('/', (req, res) => {
     res.send('What the hell am I even doing?')
