@@ -5,8 +5,8 @@ const Posts = require('../posts/controller');
 const checkIdType = typeOfId => {
     switch(typeOfId) {
         case 'user':
-            return typeOfId;
         case 'post':
+        case 'comment':
             return typeOfId;
         default:
             console.log('Not a valid type. Choose user or post.')
@@ -19,10 +19,14 @@ const generateId = async typeOfId => {
     let id;
     const user = Users.getUserById;
     const post = Posts.getPostById;
-    
+    const comment = Posts.getCommentById;    
     do {
         id = Math.floor(Math.random() * max32);
-    } while(type === 'user' ? await user(id) : await post(id));
+    } while(
+        type === 'user' ? await user(id) : 
+            type === 'post' ? await post(id) 
+                : await comment(id)
+        );
 
     return id;
 }

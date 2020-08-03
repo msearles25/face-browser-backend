@@ -1,4 +1,5 @@
 const database = require('../config/dbConfig');
+const { getSpecificUsersPosts } = require('../posts/controller');
 
 const getSpecificProfile = async userHandle => {
     const user = await database('users')
@@ -8,12 +9,14 @@ const getSpecificProfile = async userHandle => {
             'bio',
             'location',
             'site',
+            'imageUrl',
             'joinedOn'
         )
         .where({ userHandle })
         .first();
-    const posts = await database('posts')
-            .where({ userId: user.id })
+    // const posts = await database('posts')
+    //         .where({ userId: user.id })
+    const posts = await getSpecificUsersPosts(user.userHandle);
     return {
         ...user,
         posts
@@ -30,7 +33,8 @@ const getProfileInfo = id => {
             'joinedOn',
             'bio',
             'location',
-            'site'
+            'site',
+            'imageUrl'
         )
         .first();
 }

@@ -12,12 +12,12 @@ router.get('/', async (req, res) => {
         res.status(200).json(users)
     } catch(err) {
         console.log(err)
-        res.status(500).json({ message: 'The server said no, so come back later.' });
+        res.status(500).json({ error: 'The server said no, so come back later.' });
     }
 })
 
 router.post('/register', async (req, res) => {
-    const { userHandle, email, password, confirmPassword } = req.body;
+    const { userHandle, email, password, confirmPassword, imageUrl } = req.body;
     const { errors, isValid } = await validateRegister({
         userHandle,
         email,
@@ -25,7 +25,7 @@ router.post('/register', async (req, res) => {
         confirmPassword
     });
 
-    if(!isValid) return res.status(400).json({ message: { ...errors }}) 
+    if(!isValid) return res.status(400).json({ ...errors }) 
 
     try {
         const hashed = bcrypt.hashSync(password, 15);
@@ -34,6 +34,7 @@ router.post('/register', async (req, res) => {
             id: newId,
             userHandle,
             email,
+            imageUrl,
             password: hashed
         })
         const token = tokenGenerator(user)
@@ -47,7 +48,7 @@ router.post('/register', async (req, res) => {
 
     } catch (error) {
         console.log(error)
-        return res.status(500).json({ message: 'The server doesn\'t want to work right now, come back later.' });
+        return res.status(500).json({ error: 'The server doesn\'t want to work right now, come back later.' });
     }
 })
 
@@ -60,7 +61,7 @@ router.post('/login', async (req, res) => {
     });
 
     if(!isValid) {
-        return res.status(400).json({ message: { ...errors }})
+        return res.status(400).json({ ...errors })
     }
 
     try {
@@ -75,12 +76,12 @@ router.post('/login', async (req, res) => {
                 token,
             })
         } else {
-            return res.status(401).json({ message: 'Invalid credentials, try again.' });
+            return res.status(401).json({ general: 'Invalid credentials, try again.' });
         }
 
     } catch(err) {
         console.log(err)
-        return res.status(500).json({ message: 'The server decided to have a fit, try again later.' })
+        return res.status(500).json({ error: 'The server decided to have a fit, try again later.' })
     }
 })
 
